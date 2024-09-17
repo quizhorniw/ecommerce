@@ -1,0 +1,18 @@
+[submodule "gateway"]
+	path = gateway
+	url = http://github.com/quizhorniw/gateway.git
+[submodule "notification-service"]
+	path = notification-service
+	url = http://github.com/quizhorniw/notification-service.git
+[submodule "order-service"]
+	path = order-service
+	url = http://github.com/quizhorniw/order-service.git
+[submodule "user-service"]
+	path = user-service
+	url = http://github.com/quizhorniw/user-service.git
+[submodule "product-service"]
+	path = product-service
+	url = http://github.com/quizhorniw/product-service.git
+[submodule "config-server"]
+	path = config-server
+	url = http://github.com/quizhorniw/config-server.git
