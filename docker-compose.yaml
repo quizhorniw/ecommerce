@@ -1,0 +1,99 @@
+version: '3'
+services:
+  config-server:
+    image: danistollen/config-server
+    container_name: config-server
+    ports:
+      - 9999:9999
+
+  gateway:
+    image: danistollen/gateway
+    container_name: gateway
+    ports:
+      - 9090:9090
+    depends_on:
+      - config-server
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:9999
+      - USER_SERVICE_URI=http://user-service:9091
+      - ORDER_SERVICE_URI=http://order-service:9092
+      - PRODUCT_SERVICE_URI=http://product-service:9093
+
+  product-service:
+    image: danistollen/product-service
+    container_name: product-service
+    ports:
+      - 9093:9093
+    depends_on:
+      - config-server
+      - mongo
+      - rabbitmq
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:9999
+      - MONGODB_URI=mongodb://mongo:27017/productdb
+      - RABBITMQ_HOSTNAME=rabbitmq
+
+  order-service:
+    image: danistollen/order-service
+    container_name: order-service
+    ports:
+      - 9092:9092
+    depends_on:
+      - config-server
+      - mongo
+      - rabbitmq
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:9999
+      - MONGODB_URI=mongodb://mongo:27017/orderdb
+      - RABBITMQ_HOSTNAME=rabbitmq
+
+  notification-service:
+    image: danistollen/notification-service
+    container_name: notification-service
+    ports:
+      - 9094:9094
+    depends_on:
+      - config-server
+      - rabbitmq
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:9999
+      - MAILDEV_HOSTNAME=maildev
+      - RABBITMQ_HOSTNAME=rabbitmq
+
+  user-service:
+    image: danistollen/user-service
+    container_name: user-service
+    ports:
+      - 9091:9091
+    depends_on:
+      - config-server
+      - mongo
+      - rabbitmq
+      - maildev
+    env_file:
+      - .env
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:9999
+      - MONGODB_URI=mongodb://mongo:27017/userdb
+      - RABBITMQ_HOSTNAME=rabbitmq
+      - GATEWAY_HOSTNAME=gateway
+
+  mongo:
+    image: mongo:4.0.28
+    container_name: mongo
+    ports:
+      - 27017:27017
+
+  rabbitmq:
+    image: rabbitmq:3.13.6-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
